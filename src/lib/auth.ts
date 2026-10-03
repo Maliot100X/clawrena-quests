@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Twitter from "next-auth/providers/twitter";
-import { db, users } from "@/db";
+import { getDb, users } from "@/db";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
@@ -11,6 +11,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user, account, profile }) {
       if (!user?.id || !account) return false;
       try {
+        const db = getDb();
         const twitterId = (profile?.data as { id?: string })?.id ?? user.id;
         const username = (profile?.data as { username?: string })?.username ?? (user.name ?? "user").toLowerCase().replace(/\s+/g, "");
         const displayName = user.name ?? username;

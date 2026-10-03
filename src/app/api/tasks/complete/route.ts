@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { db, users, completedTasks, pointsLog, referrals } from "@/db";
+import { getDb, users, completedTasks, pointsLog, referrals } from "@/db";
 import { eq, sql, and } from "drizzle-orm";
 import { TASKS } from "@/lib/tasks";
+
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
   if (task.requiresProof && !proofUrl) return NextResponse.json({ error: "Proof URL required" }, { status: 400 });
   if (proofUrl && !proofUrl.startsWith("https://x.com/") && !proofUrl.startsWith("https://twitter.com/"))
     return NextResponse.json({ error: "Must be a valid X URL" }, { status: 400 });
+  const db = getDb();
   const existing = await db.select().from(completedTasks).where(and(eq(completedTasks.userId, session.user.id), eq(completedTasks.taskId, taskId))).limit(1);
   if (existing.length > 0) return NextResponse.json({ error: "Task already completed" }, { status: 400 });
   await db.insert(completedTasks).values({ userId: session.user.id, taskId, proofUrl: proofUrl ?? null });
