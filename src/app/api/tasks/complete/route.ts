@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db, users, completedTasks, pointsLog, referrals } from "@/db";
 import { eq, sql, and } from "drizzle-orm";
 import { TASKS } from "@/lib/tasks";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const session = await auth();

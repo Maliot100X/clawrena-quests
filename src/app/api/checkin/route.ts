@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db, users, pointsLog } from "@/db";
 import { eq, sql } from "drizzle-orm";
+export const dynamic = "force-dynamic";
 
 export async function POST() {
   const session = await auth();
