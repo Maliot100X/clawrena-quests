@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["@three-ws/avatar", "three"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "pbs.twimg.com" },
@@ -7,10 +8,5 @@ const nextConfig = {
       { protocol: "https", hostname: "images.pump.fun" },
     ],
   },
-  // Never statically generate API routes — they all need runtime DB/auth
-  experimental: {
-    // force all routes to be server-rendered
-  },
 };
-
 module.exports = nextConfig;
