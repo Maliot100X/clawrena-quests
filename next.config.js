@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@three-ws/avatar", "three"],
+  transpilePackages: ["three"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "pbs.twimg.com" },

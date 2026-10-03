@@ -6,11 +6,16 @@ import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "CLAWRENA Quests — Earn Points on X",
-  description: "Follow, like, repost and reply to earn points. Top scorers get the NFT allowlist.",
-  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "https://clawrena-quests.vercel.app"),
-  openGraph: { title: "CLAWRENA Quests", description: "Earn points on X. Top scorers get the NFT allowlist.", images: ["https://pbs.twimg.com/profile_images/2086968515685154816/P5yIReTL.jpg"] },
-  twitter: { card: "summary_large_image", creator: "@CLAWRENAi" },
+  title: "CLAWRENA Quests — Earn points on X",
+  description: "Sign in with X, finish real tasks for @CLAWRENAi, and climb the allowlist rankings.",
+  metadataBase: new URL("https://clawrena-quests.vercel.app"),
+  icons: { icon: "/brand/mark.jpg" },
+  openGraph: {
+    title: "CLAWRENA Quests",
+    description: "Earn points on X. Top scores take the NFT allowlist.",
+    images: ["/nft/hero.jpg"],
+  },
+  twitter: { card: "summary_large_image", creator: "@CLAWRENAi", images: ["/nft/hero.jpg"] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -22,8 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <footer className="border-t border-white/5 py-6 mt-12">
             <div className="mx-auto max-w-2xl px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#8b909a]">
-              <span>© 2026 CLAWRENA · @CLAWRENAi</span>
-              <span>Real tasks on X · Top scorers get NFT allowlist</span>
+              <span>CLAWRENA · <a className="text-primary" href="https://x.com/CLAWRENAi">@CLAWRENAi</a></span>
+              <span>3D models by <a className="text-primary" href="https://three.ws">three.ws</a></span>
             </div>
           </footer>
         </Providers>

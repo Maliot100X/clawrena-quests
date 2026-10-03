@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { XIcon } from "./XIcon";
-import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -24,17 +23,17 @@ export function Navbar() {
       <div className="mx-auto max-w-2xl px-5 sm:px-8">
         <div className="flex h-14 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="size-8 rounded-full overflow-hidden border border-[#22c7b8]/40 group-hover:border-[#22c7b8] transition-colors">
+            <div className="size-8 overflow-hidden rounded-full border border-primary/40 transition group-hover:border-primary">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://pbs.twimg.com/profile_images/2086968515685154816/P5yIReTL.jpg" alt="CLAWRENA" width={32} height={32} className="object-cover w-full h-full" />
+              <img src="/brand/mark.jpg" alt="CLAWRENA" width={32} height={32} className="size-full object-cover" />
             </div>
-            <span className="font-bold tracking-tight text-base">
-              <span className="text-[#eef0f3]">CLAW</span><span className="text-[#22c7b8]">RENA</span>
+            <span className="text-base font-bold tracking-tight">
+              <span>CLAW</span><span className="text-primary">RENA</span>
             </span>
           </Link>
           <nav className="hidden sm:flex items-center gap-0.5">
             {nav.map(({ href, label }) => (
-              <Link key={href} href={href} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium transition-all", path === href ? "text-[#22c7b8] bg-[#22c7b8]/10" : "text-[#8b909a] hover:text-[#eef0f3] hover:bg-white/5")}>
+              <Link key={href} href={href} className={cn("rounded-lg px-3 py-1.5 text-sm font-medium transition", path === href ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-foreground")}>
                 {label}
               </Link>
             ))}
@@ -42,16 +41,19 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             {session?.user ? (
               <>
-                <Link href="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  {session.user.image && <Image src={session.user.image} alt="" width={28} height={28} className="rounded-full border border-white/10" unoptimized />}
-                  <span className="text-sm text-[#8b909a] hidden sm:inline">@{session.user.username ?? session.user.name}</span>
+                <Link href="/profile" className="flex items-center gap-2 hover:opacity-80">
+                  {session.user.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={session.user.image} alt="" width={28} height={28} className="size-7 rounded-full border border-border object-cover" />
+                  )}
+                  <span className="hidden text-sm text-muted-foreground sm:inline">@{session.user.username ?? session.user.name}</span>
                 </Link>
-                <button onClick={() => signOut({ callbackUrl: "/" })} className="text-xs text-[#8b909a] hover:text-[#eef0f3] px-2 py-1 rounded-lg transition-colors hidden sm:block">Sign out</button>
+                <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="hidden rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground sm:block">Sign out</button>
               </>
             ) : (
-              <Link href="/api/auth/signin" className="flex items-center gap-1.5 h-8 px-4 rounded-full bg-[#22c7b8] text-[#021a18] text-sm font-bold hover:brightness-110 transition-all glow-sm">
+              <button type="button" onClick={() => signIn("twitter", { callbackUrl: path || "/" })} className="flex h-8 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground hover:brightness-110">
                 <XIcon className="size-3.5" /> Sign in
-              </Link>
+              </button>
             )}
             <button className="sm:hidden p-1.5 text-[#8b909a]" onClick={() => setOpen(v => !v)}>
               {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -61,7 +63,7 @@ export function Navbar() {
         {open && (
           <nav className="sm:hidden pb-3 pt-2 border-t border-white/5 grid grid-cols-2 gap-1">
             {nav.map(({ href, label }) => (
-              <Link key={href} href={href} onClick={() => setOpen(false)} className={cn("px-3 py-2.5 rounded-xl text-sm font-medium transition-all", path === href ? "text-[#22c7b8] bg-[#22c7b8]/10" : "text-[#8b909a] hover:text-[#eef0f3] hover:bg-white/5")}>
+              <Link key={href} href={href} onClick={() => setOpen(false)} className={cn("rounded-xl px-3 py-2.5 text-sm font-medium", path === href ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-foreground")}>
                 {label}
               </Link>
             ))}

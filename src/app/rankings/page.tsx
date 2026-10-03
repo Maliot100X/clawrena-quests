@@ -1,58 +1,113 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import { Loader2, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Trophy, Crown, Medal, Loader2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 
-interface Leader { id: string; username: string; displayName: string; avatar: string | null; points: number; }
+interface Leader {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string | null;
+  points: number;
+}
 
 export default function RankingsPage() {
   const { data: session } = useSession();
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { fetch("/api/leaderboard").then(r => r.json()).then(d => { setLeaders(d); setLoading(false); }); }, []);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/leaderboard")
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok || !Array.isArray(body)) {
+          setError(body.error ?? "Leaderboard is not ready yet.");
+          setLeaders([]);
+          return;
+        }
+        setLeaders(body);
+      })
+      .catch(() => setError("Could not load rankings."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const podium = leaders.length >= 3 ? [leaders[1], leaders[0], leaders[2]] : [];
 
   return (
-    <div className="mx-auto max-w-2xl px-5 sm:px-8 py-8">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-[#22c7b8]">Leaderboard</p>
-      <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 mb-6"><Trophy className="size-6 text-yellow-400" /> Rankings</h1>
-      {!loading && leaders.length >= 3 && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {[leaders[1], leaders[0], leaders[2]].map((l, i) => {
-            const rank = i === 0 ? 2 : i === 1 ? 1 : 3;
+    <div className="mx-auto w-full max-w-2xl px-5 py-8 sm:px-8">
+      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Leaderboard</p>
+      <h1 className="mt-1 flex items-center gap-2 text-3xl font-semibold tracking-tight">
+        <Trophy className="size-6 text-primary" /> Rankings
+      </h1>
+      <p className="mt-2 mb-6 text-sm text-muted-foreground">Top scores take the allowlist. Your row is marked in teal.</p>
+
+      {podium.length > 0 && (
+        <div className="mb-5 grid grid-cols-3 items-end gap-3">
+          {podium.map((leader, index) => {
+            const rank = index === 1 ? 1 : index === 0 ? 2 : 3;
             return (
-              <div key={l.id} className={cn("flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all", rank === 1 ? "border-[#22c7b8]/30 bg-[#22c7b8]/5 glow-sm" : "border-white/7 bg-[#0d0f13]", rank === 2 ? "mt-4" : rank === 3 ? "mt-6" : "")}>
-                <div className="relative">
-                  {l.avatar ? <Image src={l.avatar} alt={l.displayName} width={48} height={48} className={cn("rounded-full border-2", rank === 1 ? "border-[#22c7b8]" : "border-white/10")} unoptimized /> : <div className={cn("size-12 rounded-full border-2 bg-white/5 flex items-center justify-center text-lg font-bold", rank === 1 ? "border-[#22c7b8]" : "border-white/10")}>{l.displayName[0]}</div>}
-                  <div className={cn("absolute -top-1 -right-1 size-5 rounded-full flex items-center justify-center text-xs font-bold", rank === 1 ? "bg-yellow-400 text-yellow-900" : rank === 2 ? "bg-slate-300 text-slate-900" : "bg-amber-600 text-white")}>{rank}</div>
-                </div>
-                <div className="text-center"><p className="text-xs font-semibold truncate max-w-[80px] text-[#eef0f3]">{l.displayName}</p><p className="text-sm font-bold text-[#22c7b8]">{l.points} pt</p></div>
+              <div
+                key={leader.id}
+                className={cn(
+                  "flex flex-col items-center gap-2 rounded-2xl border p-4",
+                  rank === 1 ? "border-primary/40 bg-primary/10 pb-6" : "border-border bg-card",
+                  rank === 2 && "mb-3",
+                  rank === 3 && "mb-6"
+                )}
+              >
+                <span className="font-mono text-xs text-primary">#{rank}</span>
+                <Avatar className={cn("size-14", rank === 1 && "size-16 ring-2 ring-primary")}>
+                  {leader.avatar && <AvatarImage src={leader.avatar} alt="" />}
+                  <AvatarFallback>{leader.displayName.slice(0, 1)}</AvatarFallback>
+                </Avatar>
+                <p className="max-w-[7rem] truncate text-center text-xs font-semibold">{leader.displayName}</p>
+                <p className="font-mono text-sm font-bold text-primary">{leader.points}</p>
               </div>
             );
           })}
         </div>
       )}
-      <div className="rounded-2xl border border-white/7 bg-[#0d0f13] overflow-hidden">
-        {loading ? <div className="flex justify-center py-16"><Loader2 className="size-6 text-[#22c7b8] animate-spin" /></div>
-        : leaders.length === 0 ? <p className="text-center py-16 text-[#8b909a]">No participants yet. Be the first!</p>
-        : <div className="divide-y divide-white/5">{leaders.map((l, i) => {
-            const isMe = session?.user?.id === l.id;
-            return (
-              <div key={l.id} className={cn("flex items-center gap-4 px-5 py-3.5 transition-colors", isMe ? "bg-[#22c7b8]/5" : "hover:bg-white/3")}>
-                <div className="w-6 flex justify-center shrink-0">
-                  {i === 0 ? <Crown className="size-4 text-yellow-400" /> : i === 1 ? <Medal className="size-4 text-slate-300" /> : i === 2 ? <Medal className="size-4 text-amber-600" /> : <span className="text-xs text-[#8b909a] font-mono">{i+1}</span>}
-                </div>
-                {l.avatar ? <Image src={l.avatar} alt={l.displayName} width={36} height={36} className="rounded-full border border-white/10 shrink-0" unoptimized /> : <div className="size-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-sm font-bold shrink-0">{l.displayName[0]}</div>}
-                <div className="flex-1 min-w-0">
-                  <p className={cn("text-sm font-semibold truncate", isMe && "text-[#22c7b8]")}>{l.displayName} {isMe && <span className="text-xs text-[#8b909a] font-normal">(you)</span>}</p>
-                  <p className="text-xs text-[#8b909a]">@{l.username}</p>
-                </div>
-                <p className="text-sm font-bold tabular-nums shrink-0 text-[#eef0f3]">{l.points} <span className="text-xs font-normal text-[#8b909a]">pt</span></p>
-              </div>
-            );
-          })}</div>}
-      </div>
+
+      <Card className="overflow-hidden shadow-none">
+        {loading ? (
+          <div className="flex justify-center py-16"><Loader2 className="size-6 animate-spin text-primary" /></div>
+        ) : error ? (
+          <p className="px-5 py-16 text-center text-sm text-muted-foreground">{error}</p>
+        ) : leaders.length === 0 ? (
+          <div className="px-5 py-14 text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/mark.jpg" alt="" className="mx-auto mb-4 size-16 rounded-2xl object-cover" />
+            <p className="text-sm text-muted-foreground">No scores yet. Sign in and take the first spot.</p>
+          </div>
+        ) : (
+          <ol>
+            {leaders.map((leader, index) => {
+              const mine = session?.user?.id === leader.id;
+              return (
+                <li key={leader.id} className={cn("flex items-center gap-3 border-b border-border px-4 py-3 last:border-0", mine && "bg-primary/10")}>
+                  <span className="w-6 text-center font-mono text-xs text-muted-foreground">{index + 1}</span>
+                  <Avatar className="size-9">
+                    {leader.avatar && <AvatarImage src={leader.avatar} alt="" />}
+                    <AvatarFallback>{leader.displayName.slice(0, 1)}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className={cn("truncate text-sm font-semibold", mine && "text-primary")}>
+                      {leader.displayName} {mine && <span className="font-normal text-muted-foreground">you</span>}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">@{leader.username}</p>
+                  </div>
+                  <p className="font-mono text-sm font-semibold tabular-nums">{leader.points}<span className="text-xs font-normal text-muted-foreground"> pt</span></p>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </Card>
     </div>
   );
 }
