@@ -51,7 +51,7 @@ export default function NFTPage() {
         </div>
         <ModelViewer
           src={active === "hero" ? HERO_GLB : COIN_GLB}
-          height="360px" autoRotate={true} cameraControls={true}
+          height="360px" autoRotate={true}
           alt={active === "hero" ? "CLAWRENA 3D model" : "CLAWRENA token 3D model"}
         />
         <div className="px-5 py-4 border-t border-white/5">

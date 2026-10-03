@@ -74,7 +74,7 @@ function HomeInner() {
       <div className="mx-auto max-w-2xl px-5 sm:px-8 pb-10">
         {/* Real 3D hero from three.ws */}
         <div className="relative mt-4 rounded-3xl overflow-hidden border border-[#22c7b8]/20" style={{ boxShadow: "0 0 80px -20px rgba(34,199,184,0.4)" }}>
-          <ModelViewer src={HERO_GLB} height="420px" autoRotate={true} cameraControls={true} />
+          <ModelViewer src={HERO_GLB} height="420px" autoRotate={true} />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#07080b] pointer-events-none" />
           <div className="absolute bottom-0 left-0 right-0 px-8 pb-8 pt-16">
             <p className="text-[11px] font-bold uppercase tracking-widest text-[#22c7b8]">Tasks</p>
